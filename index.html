@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procrastination Symphony</title>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #9052cd 100%);
+            color: white;
+            min-height: 100vh;
+            /* Removed overflow: hidden to allow scrolling */
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+            /* Changed from height: 100vh to min-height for flexibility */
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: clamp(2em, 5vw, 3em); /* Responsive font size */
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: clamp(1em, 2.5vw, 1.2em); /* Responsive font size */
+            opacity: 0.8;
+        }
+        
+        .key-guide {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        .key-guide h4 {
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+        
+        .key-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .key-info span {
+            font-size: clamp(0.8em, 2vw, 1em);
+        }
+        
+        .song-guide {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .song-guide h4 {
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+
+        .songs-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .song-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 180px;
+            max-width: 220px;
+            flex: 1 1 180px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .song-card:hover {
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .song-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffa726;
+        }
+
+        .song-keys {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1em, 2.5vw, 1.3em);
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        .song-notes {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 12px;
+        }
+
+        .play-song-btn {
+            background: rgba(255,107,107,0.3);
+            border: 1px solid #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+       }
+
+       .play-song-btn:hover {
+            background: rgba(255,107,107,0.5);
+            transform: scale(1.05);
+        }
+
+        .song-card.playing {
+            border-color: #4ecdc4;
+            background: rgba(78,205,196,0.1);
+        }
+
+        .song-card.playing .play-song-btn {
+            background: rgba(78,205,196,0.5);
+            border-color: #4ecdc4;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            /* Allow content to grow naturally */
+        }
+
+        /* Responsive layout */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .songs-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .song-card {
+                max-width: 300px;
+                width: 100%;
+            }
+            
+            .key-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            button {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+        
+        .activity-panel {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .music-panel {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        button.active {
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .activity-log {
+            height: 200px;
+            min-height: 150px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .activity-item {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #ff6b6b;
+            padding-left: 10px;
+            animation: fadeInLeft 0.5s ease;
+        }
+        
+        .activity-item.piano {
+            border-left-color: #4ecdc4;
+        }
+        
+        .activity-item.guitar {
+            border-left-color: #ffa726;
+        }
+        
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .visualizer {
+            height: 150px;
+            min-height: 100px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(255,107,107,0.3) 100%);
+            animation: wave 2s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: clamp(1.5em, 4vw, 2em);
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .stat-label {
+            font-size: clamp(0.8em, 2vw, 0.9em);
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .current-note {
+            font-size: clamp(1.2em, 3vw, 1.5em);
+            font-weight: bold;
+            color: #4ecdc4;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 30px;
+        }
+
+        /* Ensure mobile compatibility */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+            }
+            
+            .song-guide, .key-guide {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .activity-panel, .music-panel {
+                padding: 15px;
+            }
+            
+            .activity-log {
+                height: 150px;
+            }
+            
+            .visualizer {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Procrastination Symphony</h1>
+            <p>Your digital habits, transformed into beautiful music</p>
+        </div>
+        
+        <div class="key-guide">
+            <h4>🎹 Musical Key Guide</h4>
+            <div class="key-info">
+                <span><strong>A-Z Letters:</strong> Piano Notes (C Major Scale)</span>
+                <span><strong>0-9 Numbers:</strong> Guitar Strings</span>
+                <span><strong>Special Keys:</strong> Percussion & Effects</span>
+            </div>
+        </div>
+        <div class="song-guide">
+            <h4>🎵 Try These Melodies</h4>
+            <div class="songs-container">
+                <div class="song-card" data-sequence="q q t t y y t" data-name="Twinkle Twinkle">
+                    <div class="song-title">⭐ Twinkle Twinkle</div>
+                    <div class="song-keys">Q Q T T Y Y T</div>
+                    <div class="song-notes">(C C G G A A G)</div>
+                    <button class="play-song-btn">Play</button>
+                </div>
+                <div class="song-card" data-sequence="q w q r w w q" data-name="Happy Birthday">
+                    <div class="song-title">🎂 Happy Birthday</div>
+                    <div class="song-keys">Q W Q R W W Q</div>
+                    <div class="song-notes">(C D C F D D C)</div>
+                    <button class="play-song-btn">Play</button>
+                </div>
+                <div class="song-card" data-sequence="e w q w e e e" data-name="Mary Had a Little Lamb">
+                    <div class="song-title">🐑 Mary Had a Little Lamb</div>
+                    <div class="song-keys">E W Q W E E E</div>
+                    <div class="song-notes">(E D C D E E E)</div>
+                    <button class="play-song-btn">Play</button>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="startBtn">Start Recording</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="playBtn">Play Symphony</button>
+            <button id="clearBtn">Clear Session</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="activity-panel">
+                <h3>🎯 Activity Stream</h3>
+                <div class="current-note" id="currentNote">Press keys to make music!</div>
+                <div class="activity-log" id="activityLog">
+                    <div class="activity-item">Welcome! Click "Start Recording" to begin tracking your digital symphony...</div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="tabSwitches">0</div>
+                        <div class="stat-label">Tab Switches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="keystrokes">0</div>
+                        <div class="stat-label">Keystrokes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="mouseClicks">0</div>
+                        <div class="stat-label">Mouse Clicks</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="music-panel">
+                <h3>🎼 Musical Composition</h3>
+                <div class="visualizer">
+                    <div class="wave" id="waveform"></div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="tempo">120</div>
+                        <div class="stat-label">BPM</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="instruments">0</div>
+                        <div class="stat-label">Active Instruments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="harmony">C</div>
+                        <div class="stat-label">Current Key</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let isRecording = false;
+        let activityData = [];
+        let audioContext = null;
+        let currentInstruments = new Set();
+        
+        // Statistics
+        let stats = {
+            tabSwitches: 0,
+            keystrokes: 0,
+            mouseClicks: 0,
+            tempo: 120
+        };
+        
+        // DOM elements
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const playBtn = document.getElementById('playBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const activityLog = document.getElementById('activityLog');
+        const currentNote = document.getElementById('currentNote');
+        
+        // Piano mapping - C Major scale across alphabet keys
+        const pianoNotes = {
+            // C Major scale mapped to QWERTY layout
+            'q': { note: 'C4', freq: 261.63 },
+            'w': { note: 'D4', freq: 293.66 },
+            'e': { note: 'E4', freq: 329.63 },
+            'r': { note: 'F4', freq: 349.23 },
+            't': { note: 'G4', freq: 392.00 },
+            'y': { note: 'A4', freq: 440.00 },
+            'u': { note: 'B4', freq: 493.88 },
+            'i': { note: 'C5', freq: 523.25 },
+            'o': { note: 'D5', freq: 587.33 },
+            'p': { note: 'E5', freq: 659.25 },
+            
+            'a': { note: 'F5', freq: 698.46 },
+            's': { note: 'G5', freq: 783.99 },
+            'd': { note: 'A5', freq: 880.00 },
+            'f': { note: 'B5', freq: 987.77 },
+            'g': { note: 'C6', freq: 1046.50 },
+            'h': { note: 'D6', freq: 1174.66 },
+            'j': { note: 'E6', freq: 1318.51 },
+            'k': { note: 'F6', freq: 1396.91 },
+            'l': { note: 'G6', freq: 1567.98 },
+            
+            'z': { note: 'C3', freq: 130.81 },
+            'x': { note: 'D3', freq: 146.83 },
+            'c': { note: 'E3', freq: 164.81 },
+            'v': { note: 'F3', freq: 174.61 },
+            'b': { note: 'G3', freq: 196.00 },
+            'n': { note: 'A3', freq: 220.00 },
+            'm': { note: 'B3', freq: 246.94 }
+        };
+        
+        // Guitar string frequencies (standard tuning)
+        const guitarStrings = {
+            '1': { string: 'High E', freq: 329.63 }, // 1st string (high E)
+            '2': { string: 'B', freq: 246.94 },      // 2nd string (B)
+            '3': { string: 'G', freq: 196.00 },      // 3rd string (G)
+            '4': { string: 'D', freq: 146.83 },      // 4th string (D)
+            '5': { string: 'A', freq: 110.00 },      // 5th string (A)
+            '6': { string: 'Low E', freq: 82.41 },   // 6th string (low E)
+            '0': { string: 'All Strings', freq: 220.00 } // Open strum
+        };
+        
+        // Special keys for percussion and effects
+        const specialSounds = {
+            ' ': { name: 'Kick Drum', freq: 60.00 },
+            'Enter': { name: 'Snare', freq: 200.00 },
+            'Backspace': { name: 'Hi-Hat', freq: 800.00 },
+            'Tab': { name: 'Cymbal', freq: 1200.00 },
+            'Shift': { name: 'Bass', freq: 80.00 },
+            'Control': { name: 'Tom', freq: 150.00 }
+        };
+        
+        // Initialize Web Audio API
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                setTimeout(() => {
+                    playPianoNote(440, 0.3); // A4 test note
+                    logActivity('Audio', 'Audio system initialized! 🔊');
+                }, 100);
+            }
+        }
+        
+        // Play piano note with piano-like sound
+        function playPianoNote(frequency, duration = 0.8) {
+            if (!audioContext) return;
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(filter);
+                filter.connect(audioContext.destination);
+                
+                // Piano-like tone
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = 'triangle';
+                
+                // Piano brightness filter
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(frequency * 3, audioContext.currentTime);
+                filter.Q.setValueAtTime(1, audioContext.currentTime);
+                
+                // Piano attack and decay
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 0.2);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+                
+            } catch (error) {
+                console.error('Error playing piano note:', error);
+            }
+        }
+        
+        // Play guitar string with guitar-like sound
+        function playGuitarString(frequency, duration = 1.2) {
+            if (!audioContext) return;
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(filter);
+                filter.connect(audioContext.destination);
+                
+                // Guitar-like tone
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = 'sawtooth';
+                
+                // Guitar body resonance
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(frequency * 2, audioContext.currentTime);
+                filter.Q.setValueAtTime(3, audioContext.currentTime);
+                
+                // Guitar pluck attack and sustain
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+                
+            } catch (error) {
+                console.error('Error playing guitar string:', error);
+            }
+        }
+        
+        // Play percussion/special sound
+        function playSpecialSound(frequency, duration = 0.3) {
+            if (!audioContext) return;
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(filter);
+                filter.connect(audioContext.destination);
+                
+                // Percussive sound
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = frequency < 100 ? 'sine' : 'square';
+                
+                // Sharp attack for percussion
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(frequency * 0.5, audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+                
+            } catch (error) {
+                console.error('Error playing special sound:', error);
+            }
+        }
+        
+        // Add activity to log with proper styling
+        function logActivity(activity, details, instrumentType = '') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                activity,
+                details,
+                time: Date.now(),
+                instrumentType
+            };
+            
+            activityData.push(logEntry);
+            
+            const activityItem = document.createElement('div');
+            activityItem.className = `activity-item ${instrumentType}`;
+            activityItem.innerHTML = `<strong>${timestamp}</strong> - ${activity}: ${details}`;
+            
+            activityLog.appendChild(activityItem);
+            activityLog.scrollTop = activityLog.scrollHeight;
+            
+            // Update current note display
+            if (activity === 'Piano' || activity === 'Guitar' || activity === 'Percussion') {
+                currentNote.textContent = details;
+                setTimeout(() => {
+                    if (currentNote.textContent === details) {
+                        currentNote.textContent = 'Press keys to make music!';
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Track tab changes
+        function trackTabActivity() {
+            window.addEventListener('focus', () => {
+                if (isRecording) {
+                    stats.tabSwitches++;
+                    logActivity('Tab Switch', `Returned to: ${window.location.hostname}`);
+                    playPianoNote(523.25, 0.5); // C5 chord for tab switch
+                }
+            });
+            
+            window.addEventListener('blur', () => {
+                if (isRecording) {
+                    logActivity('Tab Switch', `Left: ${window.location.hostname}`);
+                }
+            });
+            
+            document.addEventListener('visibilitychange', () => {
+                if (isRecording && !document.hidden) {
+                    stats.tabSwitches++;
+                    logActivity('Tab Switch', `Visible: ${window.location.hostname}`);
+                }
+            });
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            document.getElementById('tabSwitches').textContent = stats.tabSwitches;
+            document.getElementById('keystrokes').textContent = stats.keystrokes;
+            document.getElementById('mouseClicks').textContent = stats.mouseClicks;
+            document.getElementById('tempo').textContent = Math.round(stats.tempo);
+            document.getElementById('instruments').textContent = currentInstruments.size;
+        }
+        
+        // Event listeners for activity tracking
+        function startTracking() {
+            trackTabActivity();
+            
+            // Track keystrokes with musical mapping
+            document.addEventListener('keydown', (e) => {
+                if (isRecording) {
+                    stats.keystrokes++;
+                    const key = e.key.toLowerCase();
+                    
+                    // Check what type of key was pressed
+                    if (pianoNotes[key]) {
+                        // Piano note
+                        const noteInfo = pianoNotes[key];
+                        playPianoNote(noteInfo.freq);
+                        logActivity('Piano', `${noteInfo.note} (${key.toUpperCase()})`, 'piano');
+                        currentInstruments.add('piano');
+                        
+                    } else if (guitarStrings[key]) {
+                        // Guitar string
+                        const stringInfo = guitarStrings[key];
+                        playGuitarString(stringInfo.freq);
+                        logActivity('Guitar', `${stringInfo.string} String (${key})`, 'guitar');
+                        currentInstruments.add('guitar');
+                        
+                    } else if (specialSounds[e.key]) {
+                        // Special percussion
+                        const soundInfo = specialSounds[e.key];
+                        playSpecialSound(soundInfo.freq);
+                        logActivity('Percussion', `${soundInfo.name}`, 'percussion');
+                        currentInstruments.add('percussion');
+                        
+                    } else {
+                        // Default sound for other keys
+                        const defaultFreq = 300 + (e.key.charCodeAt(0) % 26) * 20;
+                        playSpecialSound(defaultFreq, 0.4);
+                        logActivity('Other', `${e.key}`, 'other');
+                    }
+                    
+                    // Gradually increase tempo with activity
+                    stats.tempo = Math.min(180, stats.tempo + 0.5);
+                }
+            });
+            
+            // Track mouse clicks
+            document.addEventListener('click', (e) => {
+                if (isRecording) {
+                    stats.mouseClicks++;
+                    // Play a pleasant chime for clicks
+                    playPianoNote(880, 0.4); // A5
+                    logActivity('Mouse Click', `Click at (${e.clientX}, ${e.clientY})`);
+                    currentInstruments.add('effects');
+                }
+            });
+            
+            // Track scrolling
+            let scrollTimeout;
+            document.addEventListener('scroll', (e) => {
+                if (isRecording) {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        playPianoNote(440 + (window.scrollY % 200), 0.2);
+                        logActivity('Scroll', `Position: ${window.scrollY}`);
+                    }, 150);
+                }
+            });
+        }
+        
+        // Button event listeners
+        startBtn.addEventListener('click', () => {
+            initAudio();
+            isRecording = true;
+            startBtn.classList.add('active');
+            logActivity('Session', 'Recording started! 🎵');
+            currentNote.textContent = 'Recording... Play some keys!';
+            
+            // Play a welcome chord
+            setTimeout(() => {
+                playPianoNote(261.63, 0.3); // C4
+                setTimeout(() => playPianoNote(329.63, 0.3), 100); // E4
+                setTimeout(() => playPianoNote(392.00, 0.3), 200); // G4
+            }, 200);
+        });
+        
+        pauseBtn.addEventListener('click', () => {
+            isRecording = false;
+            startBtn.classList.remove('active');
+            logActivity('Session', 'Recording paused ⏸️');
+            currentNote.textContent = 'Recording paused';
+        });
+        
+        playBtn.addEventListener('click', () => {
+            logActivity('Playback', 'Playing your procrastination symphony! 🎼');
+            playBackSymphony();
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            activityData = [];
+            stats = { tabSwitches: 0, keystrokes: 0, mouseClicks: 0, tempo: 120 };
+            currentInstruments.clear();
+            activityLog.innerHTML = '<div class="activity-item">Session cleared. Ready for a new symphony! 🎵</div>';
+            currentNote.textContent = 'Press keys to make music!';
+            updateStats();
+        });
+        
+        // Playback function
+        function playBackSymphony() {
+            if (activityData.length === 0) {
+                logActivity('Error', 'No activity recorded yet!');
+                return;
+            }
+            
+            currentNote.textContent = 'Playing symphony...';
+            
+            let playbackIndex = 0;
+            const playbackSpeed = 300;
+            
+            const playbackInterval = setInterval(() => {
+                if (playbackIndex >= activityData.length) {
+                    clearInterval(playbackInterval);
+                    logActivity('Playback', 'Symphony complete! 👏');
+                    currentNote.textContent = 'Symphony complete!';
+                    return;
+                }
+                
+                const activity = activityData[playbackIndex];
+                
+                // Replay the sounds from the activity
+                if (activity.instrumentType === 'piano' && activity.details.includes('(')) {
+                    const key = activity.details.match(/\(([^)]+)\)/)[1].toLowerCase();
+                    if (pianoNotes[key]) {
+                        playPianoNote(pianoNotes[key].freq, 0.5);
+                    }
+                } else if (activity.instrumentType === 'guitar' && activity.details.includes('(')) {
+                    const key = activity.details.match(/\(([^)]+)\)/)[1];
+                    if (guitarStrings[key]) {
+                        playGuitarString(guitarStrings[key].freq, 0.8);
+                    }
+                } else if (activity.activity === 'Mouse Click') {
+                    playPianoNote(880, 0.3);
+                }
+                
+                playbackIndex++;
+            }, playbackSpeed);
+        }
+        
+        // Initialize tracking
+        startTracking();
+        updateStats();
+        
+        // Demo instructions
+        // Song playback functionality
+        function playSong(sequence, songName) {
+            const keys = sequence.split(' ');
+            let keyIndex = 0;
+    
+        // Find the song card and mark as playing
+        const songCard = document.querySelector(`[data-sequence="${sequence}"]`);
+        if (songCard) {
+            songCard.classList.add('playing');
+        }
+    
+        logActivity('Song', `Playing "${songName}" 🎵`);
+        currentNote.textContent = `Playing: ${songName}`;
+    
+        const playInterval = setInterval(() => {
+        if (keyIndex >= keys.length) {
+            clearInterval(playInterval);
+            logActivity('Song', `Finished "${songName}" 🎼`);
+            currentNote.textContent = `Finished: ${songName}`;
+            
+            // Remove playing class
+            if (songCard) {
+                songCard.classList.remove('playing');
+            }
+            
+            setTimeout(() => {
+                if (currentNote.textContent === `Finished: ${songName}`) {
+                    currentNote.textContent = 'Press keys to make music!';
+                }
+            }, 2000);
+            return;
+        }
+        
+        const key = keys[keyIndex].toLowerCase();
+        if (pianoNotes[key]) {
+            const noteInfo = pianoNotes[key];
+            playPianoNote(noteInfo.freq, 0.6);
+            currentNote.textContent = `${songName}: ${noteInfo.note}`;
+            
+            // Visual feedback - highlight the key being played
+            const keyDisplay = keys[keyIndex].toUpperCase();
+            setTimeout(() => {
+                if (currentNote.textContent === `${songName}: ${noteInfo.note}`) {
+                    currentNote.textContent = `Playing: ${songName}`;
+                }}, 400);
+            }
+            keyIndex++;
+        }, 600); // Slightly slower tempo for melody recognition
+        }
+        // Add event listeners for song cards
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('play-song-btn')) {
+                e.stopPropagation();
+                initAudio(); // Ensure audio is initialized
+                const songCard = e.target.closest('.song-card');
+                const sequence = songCard.dataset.sequence;
+                const songName = songCard.dataset.name;
+                playSong(sequence, songName);
+            }
+            // Also allow clicking the entire card
+            if (e.target.classList.contains('song-card') || e.target.closest('.song-card')) {
+                const songCard = e.target.classList.contains('song-card') ? e.target : e.target.closest('.song-card');
+                if (!e.target.classList.contains('play-song-btn')) {
+                    initAudio();
+                    const sequence = songCard.dataset.sequence;
+                    const songName = songCard.dataset.name;
+                    playSong(sequence, songName);
+                }
+            }
+        });
+        // Demo instructions
+        setTimeout(() => {
+            if (activityData.length === 0) {
+                logActivity('Guide', 'Try the melodies above, or Q-W-E-R-T-Y for piano notes, 1-2-3-4-5-6 for guitar strings!');
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
