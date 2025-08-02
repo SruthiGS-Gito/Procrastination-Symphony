@@ -242,6 +242,7 @@
             window.addEventListener('focus', () => {
                 if (isRecording) {
                     stats.tabSwitches++;
+                    updateStats();
                     logActivity('Tab Switch', `Returned to: ${window.location.hostname}`);
                     playPianoNote(523.25, 0.5); // C5 chord for tab switch
                 }
@@ -256,6 +257,7 @@
             document.addEventListener('visibilitychange', () => {
                 if (isRecording && !document.hidden) {
                     stats.tabSwitches++;
+                    updateStats();
                     logActivity('Tab Switch', `Visible: ${window.location.hostname}`);
                 }
             });
@@ -278,6 +280,7 @@
             document.addEventListener('keydown', (e) => {
                 if (isRecording) {
                     stats.keystrokes++;
+                    updateStats();
                     const key = e.key.toLowerCase();
                     
                     // Check what type of key was pressed
@@ -318,6 +321,7 @@
             document.addEventListener('click', (e) => {
                 if (isRecording) {
                     stats.mouseClicks++;
+                    updateStats();
                     // Play a pleasant chime for clicks
                     playPianoNote(880, 0.4); // A5
                     logActivity('Mouse Click', `Click at (${e.clientX}, ${e.clientY})`);
